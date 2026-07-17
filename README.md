@@ -1,17 +1,29 @@
-# Athlink — AI Football Video Intelligence
+# Athlink - AI Football Video Intelligence
 
-> **Public overview** — The main Athlink CV service repository is private and contains proprietary service code, API keys, and production infrastructure. This repository provides a high-level technical overview for portfolio purposes.
+> **Public overview** - The main Athlink CV service repository is private and contains proprietary service code, API keys, and production infrastructure. This repository provides a high-level technical overview for portfolio purposes.
 
 ## Overview
 
-Athlink is an end-to-end computer vision pipeline that transforms raw football match footage into frame-level tactical data. The system processes full 90-minute matches through a multi-stage pipeline: detection, tracking, pitch mapping, ball-state estimation, event detection, and automated coaching reports.
+Athlink is an end-to-end computer vision pipeline for turning football match footage into structured tactical data. The system is designed around detection, tracking, pitch mapping, ball-state estimation, event detection, and coach-facing reporting.
+
+The public repository is intentionally an overview: it explains the architecture, engineering trade-offs, and evaluation approach without exposing private service code, model weights, credentials, or production infrastructure.
+
+## What This Project Shows
+
+| Area | Evidence |
+|------|----------|
+| Computer vision systems | Multi-stage football perception pipeline from video frames to tactical events |
+| ML engineering | Detector, tracker, ReID, calibration, and event-state components designed as separate validation surfaces |
+| Product thinking | Outputs aimed at coaches and analysts, not just model demos |
+| Infrastructure awareness | Queue-based processing and GPU offloading considered for long match videos |
+| Evaluation discipline | Emphasis on provenance, tracking identity quality, and report-level validation |
 
 ## Pipeline Architecture
 
-### 1. Detection (YOLO11n)
-- Custom-trained YOLO11n for player, ball, referee, and staff detection
-- Optimized for broadcast camera angles and varying lighting conditions
-- Runs at 25+ FPS on consumer GPUs
+### 1. Detection
+- Player, ball, referee, and staff detection
+- Broadcast-video challenges: camera motion, occlusion, small ball size, variable lighting
+- Detector outputs treated as provenance-bearing inputs to downstream tracking
 
 ### 2. Tracking (BoT-SORT + ReID)
 - BoT-SORT with appearance embeddings for identity persistence across occlusions
@@ -21,7 +33,7 @@ Athlink is an end-to-end computer vision pipeline that transforms raw football m
 ### 3. Pitch Mapping (Homography Calibration)
 - Keypoint detection (penalty spots, corner arcs, centre circle, line intersections)
 - DLT-based homography estimation with RANSAC outlier rejection
-- Maps broadcast coordinates → canonical 105m×68m top-down pitch model
+- Maps broadcast coordinates to a canonical 105m x 68m top-down pitch model
 - Per-frame adaptive calibration for camera zoom/pan changes
 
 ### 4. Ball State Estimation
@@ -55,11 +67,11 @@ Athlink is an end-to-end computer vision pipeline that transforms raw football m
 | Frontend | React, Three.js (pitch viz), Mapbox GL |
 | Identity | PlayerBook (cross-match player linking via ReID) |
 
-## Deployment
+## Deployment Considerations
 
-- Production: Railway (API + workers) + Modal (batch GPU inference)
-- CI/CD: GitHub Actions → Docker → Railway
-- Monitoring: Prometheus + Grafana for queue health, inference latency, error rates
+- API and worker separation for long-running video jobs
+- GPU offloading for expensive inference stages
+- Queue health, inference latency, and failure-state monitoring as first-class production concerns
 
 ## Links
 
@@ -69,7 +81,7 @@ Athlink is an end-to-end computer vision pipeline that transforms raw football m
 
 ## Status
 
-Active development. Pre-release.
+Active private development. This public repository is a portfolio overview rather than the production codebase.
 
 ---
 
